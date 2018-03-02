@@ -1,6 +1,8 @@
 package collection;
 
+import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Iterator;
 
 public class BinaryTree <K, E> {
     private Comparator<K> comp;
@@ -18,10 +20,14 @@ public class BinaryTree <K, E> {
     }
 
     public E min() {
+        if (root == null) return null;
+        else if (min == null) return root.element;
         return min.element;
     }
 
     public E max() {
+        if (root == null) return null;
+        else if (max == null) return root.element;
         return max.element;
     }
 
@@ -45,7 +51,7 @@ public class BinaryTree <K, E> {
                 } else {
                     current = current.right;
                 }
-            } else if (comp.compare(current.key, key) < 0){
+            } else if (comp.compare(key, current.key) < 0){
                 if (current.left == null) {
                     current.left = new Node<>(key, element);
                     min = current.left;
@@ -89,6 +95,7 @@ public class BinaryTree <K, E> {
                     temp = parent.right;
                     parent.right = null;
                 }
+                Node.counter--;
                 return temp.element;
                 // has left child
             } else if (current.right == null) {
@@ -97,9 +104,12 @@ public class BinaryTree <K, E> {
                 else parent.right = current.left;
                 // has right child
             } else if (current.left == null) {
+                temp = current;
                 if (current == root) root = current.right;
                 else if (isLeft) parent.left = current.right;
                 else parent.right = current.right;
+                Node.counter--;
+                return temp.element;
                 // has both children
             } else {
                 Node<K, E> successor = seek(current);
@@ -108,6 +118,7 @@ public class BinaryTree <K, E> {
                 else if (isLeft) parent.left = successor;
                 else parent.right = successor;
                 successor.left = current.left;
+                Node.counter--;
                 return temp.element;
             }
         }
@@ -138,18 +149,74 @@ public class BinaryTree <K, E> {
             while (!current.key.equals(key)) {
                 if (comp.compare(key, current.key) > 0) {
                     current = current.right;
-                } else if (comp.compare(key, current.key) < 0) {
-                    current = current.left;
                 } else {
-                    // has not found
-                    return null;
+                    current = current.left;
                 }
+                //has not found
+                if (current == null) return null;
             }
             return current.element;
         }
         return null;
     }
 
+    public Iterator<Entry> iterator() {
+        final Node[] nodes = new Node[Node.counter];
+        return new Iterator<Entry>() {
+            int pointer = -1;
+            { inorder(root, nodes, pointer); }
+            @Override
+            public boolean hasNext() {
+                return ++pointer < Node.counter;
+            }
+            @Override
+            public Entry<K, E> next() {
+                return null;
+            }
+        };
+    }
+
+
+    private void inorder (Node<K, E> next, Node[] nodes, int pointer) {
+        if (next == null) return;
+        inorder(next.left, nodes, pointer);
+        System.out.println(next.key + "," + next.element);
+//        nodes[++pointer] = next;
+        inorder(next.right, nodes, pointer);
+
+    }
+
+    public static void main(String[] args) {
+
+        BinaryTree<String, Integer> tree = new BinaryTree<>(String::compareTo);
+        tree.put("A", 1);
+        tree.put("B", 2);
+        tree.put("C", 3);
+        tree.put("D", 4);
+        tree.put("E", 5);
+        Node[] n = new Node[5];
+        tree.inorder(tree.root, n, -1);
+        System.out.println(Arrays.toString(n));
+    }
+
+
+    public class Entry<K, E> {
+        private final K key;
+        private final E element;
+
+        Entry(Node<K, E> node) {
+            this.key = node.key;
+            this.element = node.element;
+        }
+
+        public K key() {
+            return key;
+        }
+
+        public E element() {
+            return element;
+        }
+    }
 
     private static class Node<K, E> {
         private static int counter = 0;
