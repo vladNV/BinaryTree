@@ -181,26 +181,11 @@ public class BinaryTree <K, E> {
         if (next == null) return;
         inorder(next.left, nodes, pointer);
         System.out.println(next.key + "," + next.element);
-//        nodes[++pointer] = next;
         inorder(next.right, nodes, pointer);
 
     }
 
-    public static void main(String[] args) {
-
-        BinaryTree<String, Integer> tree = new BinaryTree<>(String::compareTo);
-        tree.put("A", 1);
-        tree.put("B", 2);
-        tree.put("C", 3);
-        tree.put("D", 4);
-        tree.put("E", 5);
-        Node[] n = new Node[5];
-        tree.inorder(tree.root, n, -1);
-        System.out.println(Arrays.toString(n));
-    }
-
-
-    public class Entry<K, E> {
+    public static class Entry<K, E> {
         private final K key;
         private final E element;
 
